@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Match Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .score {
+            font-size: 1.2em;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .target-color {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .target-color:hover {
+            transform: scale(1.05);
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .option {
+            padding: 15px 25px;
+            font-size: 1em;
+            border: none;
+            border-radius: 10px;
+            background: #f0f0f0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .option:hover {
+            background: #e0e0e0;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .option.correct {
+            background: #4caf50;
+            color: white;
+        }
+
+        .option.wrong {
+            background: #f44336;
+            color: white;
+        }
+
+        .feedback {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-top: 20px;
+            min-height: 30px;
+            color: #667eea;
+        }
+
+        .new-game {
+            margin-top: 20px;
+            padding: 12px 30px;
+            font-size: 1em;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .new-game:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Color Match Game</h1>
+        <div class="score">Score: <span id="score">0</span></div>
+        <div class="target-color" id="targetColor"></div>
+        <div class="options" id="options"></div>
+        <div class="feedback" id="feedback"></div>
+        <button class="new-game" onclick="newRound()">New Round</button>
+    </div>
+
+    <script>
+        let score = 0;
+        let currentColor = '';
+
+        const colors = [
+            { name: 'Red', hex: '#FF6B6B' },
+            { name: 'Blue', hex: '#4ECDC4' },
+            { name: 'Green', hex: '#95E77D' },
+            { name: 'Purple', hex: '#B794F4' },
+            { name: 'Orange', hex: '#FFA07A' },
+            { name: 'Pink', hex: '#FFB3D9' },
+            { name: 'Yellow', hex: '#FFE66D' },
+            { name: 'Teal', hex: '#00CED1' }
+        ];
+
+        function getRandomColors(count) {
+            const shuffled = [...colors].sort(() => Math.random() - 0.5);
+            return shuffled.slice(0, count);
+        }
+
+        function newRound() {
+            const selectedColors = getRandomColors(4);
+            const correctColor = selectedColors[Math.floor(Math.random() * 4)];
+            currentColor = correctColor.name;
+
+            document.getElementById('targetColor').style.backgroundColor = correctColor.hex;
+            document.getElementById('feedback').textContent = '';
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            selectedColors.forEach(color => {
+                const button = document.createElement('button');
+                button.className = 'option';
+                button.textContent = color.name;
+                button.onclick = () => checkAnswer(color.name, button);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function checkAnswer(selected, button) {
+            const buttons = document.querySelectorAll('.option');
+            buttons.forEach(btn => btn.disabled = true);
+
+            if (selected === currentColor) {
+                score++;
+                document.getElementById('score').textContent = score;
+                document.getElementById('feedback').textContent = '🎉 Correct!';
+                button.classList.add('correct');
+            } else {
+                document.getElementById('feedback').textContent = '❌ Try again!';
+                button.classList.add('wrong');
+                buttons.forEach(btn => {
+                    if (btn.textContent === currentColor) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+
+            setTimeout(() => {
+                buttons.forEach(btn => {
+                    btn.classList.remove('correct', 'wrong');
+                    btn.disabled = false;
+                });
+                newRound();
+            }, 1500);
+        }
+
+        newRound();
+    </script>
+</body>
+</html>
